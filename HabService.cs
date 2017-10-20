@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Configuration;
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
@@ -57,20 +58,45 @@ namespace HabService
 
         protected override void OnStart(string[] args)
         {
-            // Environment.SetEnvironmentVariable("HAB_SUP_BINARY", "c:/dev/habitat/target/debug/hab-sup.exe");
-            // Environment.SetEnvironmentVariable("RUST_LOG", "debug");
+            ConfigureDebug();
             proc = new Process();
             proc.StartInfo.UseShellExecute = false;
             proc.StartInfo.CreateNoWindow = true;
             proc.StartInfo.RedirectStandardOutput = true;
             proc.StartInfo.RedirectStandardError = true;
             proc.StartInfo.FileName = "C:\\hab\\pkgs\\core\\hab-launcher\\4640\\20170808140018\\bin\\hab-launch.exe";
-            proc.StartInfo.Arguments = "run";
+            String launcherArgs = "run";
+            if(ConfigurationManager.AppSettings["launcherArgs"] != null)
+            {
+                launcherArgs += $" {ConfigurationManager.AppSettings["launcherArgs"]}";
+            }
+            proc.StartInfo.Arguments = launcherArgs;
+            sw.WriteLine($"Habitat windows service is starting launcher with args: {launcherArgs}");
+            sw.Flush();
             proc.OutputDataReceived += new DataReceivedEventHandler(SupOutputHandler);
             proc.ErrorDataReceived += new DataReceivedEventHandler(SupOutputHandler);
             proc.Start();
             proc.BeginErrorReadLine();
             proc.BeginOutputReadLine();
+        }
+
+        private static void ConfigureDebug()
+        {
+            if (ConfigurationManager.AppSettings["debug"] != null)
+            {
+                if (ConfigurationManager.AppSettings["debug"].ToLower() != "false")
+                {
+                    Environment.SetEnvironmentVariable("RUST_LOG", "debug");
+                }
+                else
+                {
+                    Environment.SetEnvironmentVariable("RUST_LOG", null);
+                }
+            }
+            else
+            {
+                Environment.SetEnvironmentVariable("RUST_LOG", null);
+            }
         }
 
         private void SupOutputHandler(object sender, DataReceivedEventArgs e)
