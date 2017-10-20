@@ -18,7 +18,7 @@ namespace HabService
         [DllImport("kernel32.dll", SetLastError = true)]
         private static extern bool GenerateConsoleCtrlEvent(CtrlTypes dwCtrlEvent, uint dwProcessGroupId);
 
-        [DllImport("Kernel32", SetLastError = true)]
+        [DllImport("Kernel32.dll", SetLastError = true)]
         private static extern bool SetConsoleCtrlHandler(HandlerRoutine handler, bool add);
 
         private delegate bool HandlerRoutine(CtrlTypes CtrlType);
@@ -135,11 +135,18 @@ namespace HabService
 
         protected override void OnStop()
         {
+            // As a service we have no console so attach to the console of the launcher
             AttachConsole((uint)proc.Id);
+            // Turn off our own Ctrl-C handler so we don't die
             SetConsoleCtrlHandler(null, true);
+            // Broadcast the ctrl-c
             GenerateConsoleCtrlEvent(CtrlTypes.CTRL_C_EVENT, 0);
+
             proc.WaitForExit();
+
+            // Remove ourselves from the dead console
             FreeConsole();
+
             sw.WriteLine("Habitat service stopped");
             sw.Flush();
         }
