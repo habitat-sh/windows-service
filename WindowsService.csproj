@@ -48,10 +48,6 @@
     <Compile Include="HabService.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="HabService.Designer.cs">
-      <DependentUpon>HabService.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

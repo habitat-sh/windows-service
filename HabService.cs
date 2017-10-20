@@ -35,9 +35,24 @@ namespace HabService
         private Process proc = null;
         private StreamWriter sw = new StreamWriter("c:\\dev\\HabServiceLog.txt", true);
 
+        /// <summary>
+        /// The main entry point for the service.
+        /// </summary>
+        static void Main()
+        {
+            ServiceBase[] ServicesToRun;
+            ServicesToRun = new ServiceBase[]
+            {
+                new HabService()
+            };
+            Run(ServicesToRun);
+        }
+
         public HabService()
         {
-            InitializeComponent();
+            ServiceName = "HabService";
+            CanStop = true;
+            AutoLog = true;
         }
 
         protected override void OnStart(string[] args)
