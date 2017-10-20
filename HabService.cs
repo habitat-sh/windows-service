@@ -64,8 +64,8 @@ namespace HabService
             proc.StartInfo.CreateNoWindow = true;
             proc.StartInfo.RedirectStandardOutput = true;
             proc.StartInfo.RedirectStandardError = true;
-            proc.StartInfo.FileName = "C:\\hab\\pkgs\\core\\hab-launcher\\4640\\20170808140018\\bin\\hab-launch.exe";
-            String launcherArgs = "run";
+            proc.StartInfo.FileName = LauncherPath;
+            var launcherArgs = "run";
             if(ConfigurationManager.AppSettings["launcherArgs"] != null)
             {
                 launcherArgs += $" {ConfigurationManager.AppSettings["launcherArgs"]}";
@@ -97,6 +97,31 @@ namespace HabService
             {
                 Environment.SetEnvironmentVariable("RUST_LOG", null);
             }
+        }
+
+        private static string LauncherPath
+        {
+            get
+            {
+                if (ConfigurationManager.AppSettings["launcherPath"] != null)
+                {
+                    return ConfigurationManager.AppSettings["launcherPath"];
+                }
+                else
+                {
+                    // because we declare hab-launcher as a runtime dep
+                    // this path should exist
+                    var launcherBase = Path.Combine(Path.GetPathRoot(Environment.SystemDirectory), "hab\\pkgs\\core\\hab-launcher");
+                    var latestLauncher = LastDirectory(LastDirectory(launcherBase));
+                    return Path.Combine(latestLauncher, "bin\\hab-launch.exe");
+                }
+            }
+        }
+
+        private static string LastDirectory(string path)
+        {
+            var dirs = Directory.GetDirectories(path);
+            return dirs[dirs.Length - 1];
         }
 
         private void SupOutputHandler(object sender, DataReceivedEventArgs e)
