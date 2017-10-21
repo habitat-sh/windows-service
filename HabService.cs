@@ -73,6 +73,7 @@ namespace HabService
                     launcherArgs += $" {ConfigurationManager.AppSettings["launcherArgs"]}";
                 }
                 proc.StartInfo.Arguments = launcherArgs;
+                log.Info($"Habitat windows service is starting launcher at: {LauncherPath}");
                 log.Info($"Habitat windows service is starting launcher with args: {launcherArgs}");
                 proc.OutputDataReceived += new DataReceivedEventHandler(SupOutputHandler);
                 proc.ErrorDataReceived += new DataReceivedEventHandler(SupErrorHandler);
