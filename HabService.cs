@@ -73,7 +73,7 @@ namespace HabService
             proc.StartInfo.Arguments = launcherArgs;
             log.Info($"Habitat windows service is starting launcher with args: {launcherArgs}");
             proc.OutputDataReceived += new DataReceivedEventHandler(SupOutputHandler);
-            proc.ErrorDataReceived += new DataReceivedEventHandler(SupOutputHandler);
+            proc.ErrorDataReceived += new DataReceivedEventHandler(SupErrorHandler);
             proc.Start();
             proc.BeginErrorReadLine();
             proc.BeginOutputReadLine();
@@ -128,6 +128,14 @@ namespace HabService
             if (!String.IsNullOrEmpty(e.Data))
             {
                 log.Info(e.Data);
+            }
+        }
+
+        private void SupErrorHandler(object sender, DataReceivedEventArgs e)
+        {
+            if (!String.IsNullOrEmpty(e.Data))
+            {
+                log.Error(e.Data);
             }
         }
 
