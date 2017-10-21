@@ -158,7 +158,10 @@ namespace HabService
                 // Broadcast the ctrl-c
                 GenerateConsoleCtrlEvent(CtrlTypes.CTRL_C_EVENT, 0);
 
-                proc.WaitForExit();
+                if (!proc.WaitForExit(60000))
+                {
+                    log.Error("Launcher did not exit after waiting for one minute!");
+                }
 
                 // Remove ourselves from the dead console
                 FreeConsole();
