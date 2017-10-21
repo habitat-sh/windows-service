@@ -34,7 +34,7 @@ namespace HabService
         }
 
         private Process proc = null;
-        private StreamWriter sw = new StreamWriter("c:\\dev\\HabServiceLog.txt", true);
+        private static readonly log4net.ILog log = log4net.LogManager.GetLogger("HabService");
 
         /// <summary>
         /// The main entry point for the service.
@@ -71,8 +71,7 @@ namespace HabService
                 launcherArgs += $" {ConfigurationManager.AppSettings["launcherArgs"]}";
             }
             proc.StartInfo.Arguments = launcherArgs;
-            sw.WriteLine($"Habitat windows service is starting launcher with args: {launcherArgs}");
-            sw.Flush();
+            log.Info($"Habitat windows service is starting launcher with args: {launcherArgs}");
             proc.OutputDataReceived += new DataReceivedEventHandler(SupOutputHandler);
             proc.ErrorDataReceived += new DataReceivedEventHandler(SupOutputHandler);
             proc.Start();
@@ -128,8 +127,7 @@ namespace HabService
         {
             if (!String.IsNullOrEmpty(e.Data))
             {
-                sw.WriteLine(e.Data);
-                sw.Flush();
+                log.Info(e.Data);
             }
         }
 
@@ -147,8 +145,7 @@ namespace HabService
             // Remove ourselves from the dead console
             FreeConsole();
 
-            sw.WriteLine("Habitat service stopped");
-            sw.Flush();
+            log.Info("Habitat service stopped");
         }
     }
 }
