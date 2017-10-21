@@ -58,25 +58,32 @@ namespace HabService
 
         protected override void OnStart(string[] args)
         {
-            ConfigureDebug();
-            proc = new Process();
-            proc.StartInfo.UseShellExecute = false;
-            proc.StartInfo.CreateNoWindow = true;
-            proc.StartInfo.RedirectStandardOutput = true;
-            proc.StartInfo.RedirectStandardError = true;
-            proc.StartInfo.FileName = LauncherPath;
-            var launcherArgs = "run";
-            if(ConfigurationManager.AppSettings["launcherArgs"] != null)
+            try
             {
-                launcherArgs += $" {ConfigurationManager.AppSettings["launcherArgs"]}";
+                ConfigureDebug();
+                proc = new Process();
+                proc.StartInfo.UseShellExecute = false;
+                proc.StartInfo.CreateNoWindow = true;
+                proc.StartInfo.RedirectStandardOutput = true;
+                proc.StartInfo.RedirectStandardError = true;
+                proc.StartInfo.FileName = LauncherPath;
+                var launcherArgs = "run";
+                if (ConfigurationManager.AppSettings["launcherArgs"] != null)
+                {
+                    launcherArgs += $" {ConfigurationManager.AppSettings["launcherArgs"]}";
+                }
+                proc.StartInfo.Arguments = launcherArgs;
+                log.Info($"Habitat windows service is starting launcher with args: {launcherArgs}");
+                proc.OutputDataReceived += new DataReceivedEventHandler(SupOutputHandler);
+                proc.ErrorDataReceived += new DataReceivedEventHandler(SupErrorHandler);
+                proc.Start();
+                proc.BeginErrorReadLine();
+                proc.BeginOutputReadLine();
             }
-            proc.StartInfo.Arguments = launcherArgs;
-            log.Info($"Habitat windows service is starting launcher with args: {launcherArgs}");
-            proc.OutputDataReceived += new DataReceivedEventHandler(SupOutputHandler);
-            proc.ErrorDataReceived += new DataReceivedEventHandler(SupErrorHandler);
-            proc.Start();
-            proc.BeginErrorReadLine();
-            proc.BeginOutputReadLine();
+            catch(Exception e)
+            {
+                log.Error("Error occured in OnStart", e);
+            }
         }
 
         private static void ConfigureDebug()
@@ -141,19 +148,26 @@ namespace HabService
 
         protected override void OnStop()
         {
-            // As a service we have no console so attach to the console of the launcher
-            AttachConsole((uint)proc.Id);
-            // Turn off our own Ctrl-C handler so we don't die
-            SetConsoleCtrlHandler(null, true);
-            // Broadcast the ctrl-c
-            GenerateConsoleCtrlEvent(CtrlTypes.CTRL_C_EVENT, 0);
+            try
+            {
+                // As a service we have no console so attach to the console of the launcher
+                AttachConsole((uint)proc.Id);
+                // Turn off our own Ctrl-C handler so we don't die
+                SetConsoleCtrlHandler(null, true);
+                // Broadcast the ctrl-c
+                GenerateConsoleCtrlEvent(CtrlTypes.CTRL_C_EVENT, 0);
 
-            proc.WaitForExit();
+                proc.WaitForExit();
 
-            // Remove ourselves from the dead console
-            FreeConsole();
+                // Remove ourselves from the dead console
+                FreeConsole();
 
-            log.Info("Habitat service stopped");
+                log.Info("Habitat service stopped");
+            }
+            catch(Exception e)
+            {
+                log.Error("Error occured in OnStop", e);
+            }
         }
     }
 }
