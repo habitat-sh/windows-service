@@ -67,14 +67,14 @@ namespace HabService
                 proc.StartInfo.RedirectStandardOutput = true;
                 proc.StartInfo.RedirectStandardError = true;
                 proc.StartInfo.FileName = LauncherPath;
-                var launcherArgs = "run";
+                string launcherArgs = "run";
                 if (ConfigurationManager.AppSettings["launcherArgs"] != null)
                 {
-                    launcherArgs += $" {ConfigurationManager.AppSettings["launcherArgs"]}";
+                    launcherArgs += String.Format(" {0}", ConfigurationManager.AppSettings["launcherArgs"]);
                 }
                 proc.StartInfo.Arguments = launcherArgs;
-                log.Info($"Habitat windows service is starting launcher at: {LauncherPath}");
-                log.Info($"Habitat windows service is starting launcher with args: {launcherArgs}");
+                log.Info(String.Format("Habitat windows service is starting launcher at: {0}", LauncherPath));
+                log.Info(String.Format("Habitat windows service is starting launcher with args: {0}", launcherArgs));
                 proc.OutputDataReceived += new DataReceivedEventHandler(SupOutputHandler);
                 proc.ErrorDataReceived += new DataReceivedEventHandler(SupErrorHandler);
                 proc.Start();
@@ -118,8 +118,8 @@ namespace HabService
                 {
                     // because we declare hab-launcher as a runtime dep
                     // this path should exist
-                    var launcherBase = Path.Combine(Path.GetPathRoot(Environment.SystemDirectory), "hab\\pkgs\\core\\hab-launcher");
-                    var latestLauncher = LastDirectory(LastDirectory(launcherBase));
+                    string launcherBase = Path.Combine(Path.GetPathRoot(Environment.SystemDirectory), "hab\\pkgs\\core\\hab-launcher");
+                    string latestLauncher = LastDirectory(LastDirectory(launcherBase));
                     return Path.Combine(latestLauncher, "bin\\hab-launch.exe");
                 }
             }
@@ -127,7 +127,7 @@ namespace HabService
 
         private static string LastDirectory(string path)
         {
-            var dirs = Directory.GetDirectories(path);
+            string[] dirs = Directory.GetDirectories(path);
             return dirs[dirs.Length - 1];
         }
 
