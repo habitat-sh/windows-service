@@ -11,11 +11,12 @@
 
 	Copy-Item "$PSScriptRoot\*" $svcPath -Force
 
-	&$env:systemroot\system32\sc.exe create Habitat binpath= "$svcPath\HabService.exe" DisplayName= "The Habitat Supervisor service" start= auto
+	&$env:systemroot\system32\sc.exe create Habitat binpath= "$svcPath\HabService.exe" start= auto
 	if($LASTEXITCODE -ne 0) {
 	    Write-Error "Failed to install the Habitat Service!"
 	}
 	else {
+		&$env:systemroot\system32\sc.exe description Habitat "The Habitat Supervisor service"
 		Write-Host "Congratulations! The Habitat Service has succesfully been installed!"
 	}
 }
