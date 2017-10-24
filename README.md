@@ -15,7 +15,7 @@ hab pkg install core/windows-service
 hab pkg exec core/windows-service install
 ```
 
-This will install the service in the Windows Service Control Manager (SCM). You can locate the service in the Services condole app. It will be named "Habitat." It will be set to start automatically and run under the `Local System` account. You may of course change the startup type and/or account identity in the service's properties.
+This will install the service in the Windows Service Control Manager (SCM). You can locate the service in the Services console app. It will be named "Habitat." It will be set to start automatically and run under the `Local System` account. You may of course change the startup type and/or account identity in the service's properties.
 
 ## Uninstallation
 
@@ -39,17 +39,17 @@ The Habitat Windows service uses [log4net](https://logging.apache.org/log4net/) 
 
 Other settings are located in the `appSettings` section of the configuration file. Here you can add or edit the following configuration keys:
 
-* `debug` - When any value other than false, this will cause the service logs to include very verbose debug logging. This is likely only helpful to a Habitat developer troubleshooting problems with the Habitat Supervisor.
+* `debug` - When any value other than `false`, this will cause the service logs to include very verbose debug logging. This is likely only helpful to a Habitat developer troubleshooting problems with the Habitat Supervisor.
 * `launcherArgs` - Arguments to forward on to `hab run`. You can see `hab run --help` for details but here you may pass peer information or override supervisor ports.
 * `launcherPath` - The absolute path of the `hab-launch.exe` to invoke which will start the supervisor. By default this will point to the latest version of the launcher installed. This is useful by Habitat developers for debugging the Habitat launcher.
 
 ## Considerations for setting the Habitat service identity
 
-By default the Habitat service will run under `Local System` and should have adequate permissions for running Habitat services. You may specify in your service `plan.ps1` a specific identity (`svc_user`) that you want an individual Habitat service to run as and the Habitat Supervisor (running under the Windows service) will launch that service with the specified identity. Note that identity must have the right to run as a service. If you do not specify a `svc_user` in your plan, the service will run under the same identity as the Windows service (`Local System` by default).
+By default the Habitat service will run under `Local System` and should have adequate permissions for running Habitat services. You may specify in your service `plan.ps1` a specific identity (`pkg_svc_user`) that you want an individual Habitat service to run as and the Habitat Supervisor (running under the Windows service) will launch that service with the specified identity. Note that identity must have the right to run as a service. If you do not specify a `pkg_svc_user` in your plan, the service will run under the same identity as the Windows service (`Local System` by default).
 
 If you would like to have the Windows service run under an identity other than `Local System`, keep the following in mind:
 
-* You may not use `Network Service` because that identity is given minimum local privileges and may not access processes that the supervisor needs to access.
+* You may not use `Network Service` because that identity is given minimum local privileges and may not be able to access processes that the supervisor needs to access. For example, if the Supervisor cannot gracefully terminate a service, it will forcefully terminate the process along with all child processes. The `Network Service` does not have rights to terminate a process.
 * The configured account must have local administrator privileges and be assigned the following rights:
   * Log on as a service
   * Adjust memory quotas for a process
