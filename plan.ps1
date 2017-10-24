@@ -25,5 +25,4 @@ function Invoke-Build {
 
 function Invoke-Install {
   Copy-Item $HAB_CACHE_SRC_PATH/$pkg_dirname/bin/release/* $pkg_prefix/bin
-  Copy-Item $HAB_CACHE_SRC_PATH/$pkg_dirname/* $pkg_prefix/bin -Include @("*.bat", "habitat.ps1")
 }
