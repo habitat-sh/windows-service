@@ -57,3 +57,6 @@ If you would like to have the Windows service run under an identity other than `
 
 The last two assignments are necessary in order for the Habitat Windows service to launch Habitat services under different identites.
 
+## Running the Service and a Windows Studio on the same machine
+
+You may encounter failures if you attempt to enter a Windows Studio using `hab studio enter -w` on a machine that is running the Habitat Windows service due to port conflicts. Currently this is not a supported scenario and it is recommended that you run the Windows service in non development environments where you do not intend to use a Windows based Studio.
