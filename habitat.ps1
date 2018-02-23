@@ -11,6 +11,16 @@
 
 	Copy-Item "$PSScriptRoot\*" $svcPath -Force
 
+	$netPath = Join-Path $env:SystemRoot "Microsoft.NET\Framework64"
+	if(!(Test-Path (Join-Path $netPath "v4.0.30319"))) {
+		$clrVersion = "v2.0.50727"
+		if(Test-Path (Join-Path $netPath $clrVersion)) {
+			[xml]$configXml = Get-Content (Join-Path $svcPath HabService.exe.config)
+			$configXml.configuration.startup.supportedRuntime.version = $clrVersion
+			$configXml.Save((Join-Path $svcPath HabService.exe.config))
+		}
+	}
+
 	&$env:systemroot\system32\sc.exe create Habitat binpath= "$svcPath\HabService.exe" start= auto
 	if($LASTEXITCODE -ne 0) {
 	    Write-Error "Failed to install the Habitat Service!"
