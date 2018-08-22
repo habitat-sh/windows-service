@@ -4,6 +4,16 @@
 		return
 	}
 
+	if(!(Test-Path (Join-Path $env:SystemDrive "hab\pkgs\core\hab-sup"))) {
+		$habProc = Get-Process hab -ErrorAction SilentlyContinue
+		if(!$habProc) {
+			Write-Error "Could not locate the Habitat CLI. Make sure you are running this via 'hab pkg exec core/windows-service install'."
+			return
+		}
+		$habExe = $habProc[0].Path
+		& $habExe pkg install core/hab-sup
+	}
+
 	$svcPath = Join-Path $env:SystemDrive "hab\svc\windows-service"
 	if(!(Test-Path $svcPath)) {
 		mkdir $svcPath
