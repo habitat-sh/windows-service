@@ -11,8 +11,6 @@ else {
     $channel = "stable"
 }
 
-Write-Host "testing my_variable is $($env:my_variable)"
-
 $bootstrapDir = "c:\habitat"
 $url = "https://api.bintray.com/content/habitat/stable/windows/x86_64/hab-$($env:hab_exe_version)-x86_64-windows.zip?bt_package=hab-x86_64-windows"
 mkdir $bootstrapDir -Force
