@@ -61,6 +61,7 @@ namespace HabService
             try
             {
                 ConfigureDebug();
+                ConfigureSupSignal();
                 proc = new Process();
                 proc.StartInfo.UseShellExecute = false;
                 proc.StartInfo.CreateNoWindow = true;
@@ -103,6 +104,25 @@ namespace HabService
             else
             {
                 Environment.SetEnvironmentVariable("RUST_LOG", null);
+            }
+        }
+
+        private static void ConfigureSupSignal()
+        {
+            if (ConfigurationManager.AppSettings["HAB_FEAT_IGNORE_SIGNALS"] != null)
+            {
+                if (ConfigurationManager.AppSettings["HAB_FEAT_IGNORE_SIGNALS"].ToLower() != "false")
+                {
+                    Environment.SetEnvironmentVariable("HAB_FEAT_IGNORE_SIGNALS", "true");
+                }
+                else
+                {
+                    Environment.SetEnvironmentVariable("HAB_FEAT_IGNORE_SIGNALS", null);
+                }
+            }
+            else
+            {
+                Environment.SetEnvironmentVariable("HAB_FEAT_IGNORE_SIGNALS", null);
             }
         }
 
@@ -152,15 +172,26 @@ namespace HabService
             try
             {
                 // As a service we have no console so attach to the console of the launcher
-                AttachConsole((uint)proc.Id);
+                if(!AttachConsole((uint)proc.Id)) {
+                    log.Error("Unable to attach to console!");
+                    log.Error(Marshal.GetLastWin32Error());
+                }
                 // Turn off our own Ctrl-C handler so we don't die
-                SetConsoleCtrlHandler(null, true);
+                if(!SetConsoleCtrlHandler(null, true)) {
+                    log.Error("Failed to disable ctrl+c!");
+                    log.Error(Marshal.GetLastWin32Error());
+                }
                 // Broadcast the ctrl-c
-                GenerateConsoleCtrlEvent(CtrlTypes.CTRL_C_EVENT, 0);
+                if(!GenerateConsoleCtrlEvent(CtrlTypes.CTRL_C_EVENT, 0)) {
+                    log.Error("Failed to send ctrl+c signal!");
+                    log.Error(Marshal.GetLastWin32Error());
+                }
 
                 if (!proc.WaitForExit(60000))
                 {
                     log.Error("Launcher did not exit after waiting for one minute!");
+                    log.Info("Forcefully terminating Launcher process.");
+                    proc.Kill();
                 }
 
                 // Remove ourselves from the dead console
