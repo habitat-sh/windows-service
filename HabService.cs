@@ -2,8 +2,10 @@
 using System.Configuration;
 using System.Diagnostics;
 using System.IO;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.ServiceProcess;
+using System.Xml;
 
 namespace HabService
 {
@@ -34,13 +36,24 @@ namespace HabService
         }
 
         private Process proc = null;
-        private static readonly log4net.ILog log = log4net.LogManager.GetLogger("HabService");
+        private static readonly log4net.ILog log = log4net.LogManager.GetLogger(typeof(HabService));
 
         /// <summary>
         /// The main entry point for the service.
         /// </summary>
         static void Main()
         {
+            var log4netConfig = new XmlDocument();
+            var codebase = Assembly.GetExecutingAssembly().CodeBase;
+            var uri = new UriBuilder(codebase);
+            var path = Uri.UnescapeDataString(uri.Path);
+            log4netConfig.Load(File.OpenRead(Path.Join(Path.GetDirectoryName(path), "log4net.xml")));
+
+            var repo = log4net.LogManager.CreateRepository(
+                Assembly.GetEntryAssembly(), typeof(log4net.Repository.Hierarchy.Hierarchy));
+
+            log4net.Config.XmlConfigurator.Configure(repo, log4netConfig["log4net"]);
+
             ServiceBase[] ServicesToRun;
             ServicesToRun = new ServiceBase[]
             {
