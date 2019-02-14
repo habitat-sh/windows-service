@@ -1,4 +1,4 @@
-﻿$pkg_name="windows-service"
+$pkg_name="windows-service"
 $pkg_origin="core"
 $pkg_version="0.4.0"
 $pkg_maintainer="The Habitat Maintainers <humans@habitat.sh>"
