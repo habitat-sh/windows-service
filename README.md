@@ -1,4 +1,6 @@
-﻿# Windows-Service
+﻿**NOTE:** This repository is no longer active. The `windows-service` source code has been moved to the [`habitat` repo](https://github.com/habitat-sh/habitat/tree/master/components/windows-service).
+
+# Windows-Service
 
 A Windows service that runs the Habitat Supervisor
 
